@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #06060a;
+  --foreground: #e4e4e7;
+  --accent-gold: #d4a020;
+  --agent-a: #3b82f6;
+  --agent-b: #10b981;
 }
 
 @theme inline {
@@ -12,15 +15,122 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
 }
+
+/* ===== Grid background ===== */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(212, 160, 32, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212, 160, 32, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ===== Noise texture overlay ===== */
+.noise::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ===== Thinking dots ===== */
+@keyframes neural-pulse {
+  0%, 100% { transform: scale(0.6); opacity: 0.2; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+.thinking-dot:nth-child(1) { animation: neural-pulse 1.2s ease-in-out infinite; }
+.thinking-dot:nth-child(2) { animation: neural-pulse 1.2s ease-in-out 0.15s infinite; }
+.thinking-dot:nth-child(3) { animation: neural-pulse 1.2s ease-in-out 0.3s infinite; }
+
+/* ===== Typewriter cursor ===== */
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.typewriter-cursor::after {
+  content: "\2588";
+  animation: blink-cursor 0.8s step-end infinite;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 100;
+  margin-left: 1px;
+}
+
+/* ===== Glow effects ===== */
+.glow-blue { box-shadow: 0 0 20px -4px rgba(59, 130, 246, 0.15), inset 0 1px 0 rgba(59, 130, 246, 0.08); }
+.glow-emerald { box-shadow: 0 0 20px -4px rgba(16, 185, 129, 0.15), inset 0 1px 0 rgba(16, 185, 129, 0.08); }
+.glow-gold { box-shadow: 0 0 30px -4px rgba(212, 160, 32, 0.2), inset 0 1px 0 rgba(212, 160, 32, 0.1); }
+
+/* ===== Result card glow animation ===== */
+@keyframes border-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.result-glow {
+  animation: border-glow 3s ease-in-out infinite;
+}
+
+/* ===== Fade-in for new messages ===== */
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-slide-left { animation: slide-in-left 0.4s ease-out; }
+.animate-slide-right { animation: slide-in-right 0.4s ease-out; }
+
+/* ===== VS pulse ===== */
+@keyframes vs-pulse {
+  0%, 100% { transform: scale(1); text-shadow: 0 0 20px rgba(212, 160, 32, 0.3); }
+  50% { transform: scale(1.05); text-shadow: 0 0 40px rgba(212, 160, 32, 0.6); }
+}
+
+.vs-pulse { animation: vs-pulse 3s ease-in-out infinite; }
+
+/* ===== Staggered fade in ===== */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up { animation: fade-up 0.6s ease-out both; }
+.fade-up-1 { animation-delay: 0.1s; }
+.fade-up-2 { animation-delay: 0.2s; }
+.fade-up-3 { animation-delay: 0.35s; }
+.fade-up-4 { animation-delay: 0.5s; }
+.fade-up-5 { animation-delay: 0.65s; }
+
+/* ===== Progress bar ===== */
+@keyframes progress-fill {
+  from { width: 0; }
+}
+
+.progress-animate {
+  animation: progress-fill 0.5s ease-out;
+}
+
+/* ===== Input focus ring ===== */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(212, 160, 32, 0.3);
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.15); }
