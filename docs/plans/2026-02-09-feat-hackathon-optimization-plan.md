@@ -193,11 +193,11 @@ export async function actWithSecondMe(
 ## 验收标准
 
 - [ ] OAuth 登录流程完整走通（本地 + 生产）
-- [ ] 5 个预设场景，覆盖三种结果（共识/接近/分歧）
-- [ ] 结果展示三级分层
-- [ ] Act API 用于摘要生成（有 fallback）
-- [ ] `npm run lint` 0 errors
-- [ ] `npm run build` 通过
+- [x] 5 个预设场景，覆盖三种结果（共识/接近/分歧）
+- [x] 结果展示三级分层
+- [x] Act API 用于摘要生成（有 fallback）
+- [x] `npm run lint` 0 errors
+- [x] `npm run build` 通过
 - [ ] Vercel 部署成功，可公网访问
 - [ ] 完整登录 → 创建谈判 → 完成谈判 → 查看结果流程在生产环境跑通
 
