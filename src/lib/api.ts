@@ -14,6 +14,14 @@ export async function createNegotiation(
     throw new Error(data.error || `HTTP ${res.status}`);
   }
   const data = await res.json();
+  // Persist session config for serverless cross-instance recovery
+  if (data.session_config) {
+    try {
+      sessionStorage.setItem(`negotiation_${data.session_id}`, JSON.stringify(data.session_config));
+    } catch {
+      // sessionStorage unavailable
+    }
+  }
   return data.session_id;
 }
 
@@ -30,8 +38,19 @@ export async function streamNegotiation(
   sessionId: string,
   callbacks: NegotiationCallbacks,
 ): Promise<void> {
+  // Recover session config from sessionStorage for serverless cross-instance recovery
+  let body: string | undefined;
+  try {
+    const config = sessionStorage.getItem(`negotiation_${sessionId}`);
+    if (config) body = config;
+  } catch {
+    // sessionStorage unavailable
+  }
+
   await fetchEventSource(`/api/negotiate/${sessionId}/stream`, {
-    method: "GET",
+    method: "POST",
+    headers: body ? { "Content-Type": "application/json" } : {},
+    body,
     onmessage(ev) {
       const data = JSON.parse(ev.data);
       switch (ev.event) {

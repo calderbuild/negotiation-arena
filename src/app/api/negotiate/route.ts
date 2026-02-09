@@ -30,5 +30,19 @@ export async function POST(req: Request) {
   }
 
   const session = createSession(body);
-  return NextResponse.json({ session_id: session.id });
+  return NextResponse.json({
+    session_id: session.id,
+    session_config: {
+      id: session.id,
+      topic: session.topic,
+      instance_a_id: session.instance_a_id,
+      instance_a_name: session.instance_a_name,
+      position_a: session.position_a,
+      instance_b_id: session.instance_b_id,
+      instance_b_name: session.instance_b_name,
+      position_b: session.position_b,
+      accessToken: session.accessToken,
+      created_at: session.created_at,
+    },
+  });
 }

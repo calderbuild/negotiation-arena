@@ -26,6 +26,35 @@ export function getSession(id: string): NegotiationSession | undefined {
   return sessions.get(id);
 }
 
+/**
+ * Restore a session from serialized config (for serverless cross-instance recovery).
+ * Only creates if not already in memory.
+ */
+export function restoreSession(config: CreateNegotiationRequest & { id: string; created_at: number }): NegotiationSession {
+  const existing = sessions.get(config.id);
+  if (existing) return existing;
+
+  const session: NegotiationSession = {
+    id: config.id,
+    topic: config.topic.slice(0, MAX_TOPIC_LENGTH),
+    status: "pending",
+    instance_a_id: config.instance_a_id,
+    instance_a_name: config.instance_a_name,
+    position_a: config.position_a.slice(0, MAX_POSITION_LENGTH),
+    instance_b_id: config.instance_b_id,
+    instance_b_name: config.instance_b_name,
+    position_b: config.position_b.slice(0, MAX_POSITION_LENGTH),
+    messages: [],
+    summary: null,
+    error: null,
+    created_at: config.created_at,
+    accessToken: config.accessToken,
+  };
+
+  sessions.set(session.id, session);
+  return session;
+}
+
 export function createSession(req: CreateNegotiationRequest): NegotiationSession {
   const topic = req.topic.slice(0, MAX_TOPIC_LENGTH);
   const positionA = req.position_a.slice(0, MAX_POSITION_LENGTH);

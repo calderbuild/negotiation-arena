@@ -1,13 +1,24 @@
-import { runNegotiation } from "@/lib/negotiation";
+import { restoreSession, runNegotiation } from "@/lib/negotiation";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-export async function GET(
+export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+
+  // Restore session from body if not in memory (serverless cross-instance recovery)
+  try {
+    const body = await req.json();
+    if (body?.id === id) {
+      restoreSession(body);
+    }
+  } catch {
+    // No body or invalid JSON -- session must be in memory
+  }
+
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
