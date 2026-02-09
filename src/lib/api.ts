@@ -47,6 +47,8 @@ export async function streamNegotiation(
     // sessionStorage unavailable
   }
 
+  let finished = false;
+
   await fetchEventSource(`/api/negotiate/${sessionId}/stream`, {
     method: "POST",
     headers: body ? { "Content-Type": "application/json" } : {},
@@ -68,6 +70,7 @@ export async function streamNegotiation(
           callbacks.onSummary(data);
           break;
         case "done":
+          finished = true;
           callbacks.onDone();
           break;
         case "error":
@@ -77,10 +80,12 @@ export async function streamNegotiation(
     },
     onclose() {
       // Server closed the connection -- do NOT retry
-      throw new Error("stream ended");
+      throw new Error("stream closed");
     },
     onerror(err) {
-      callbacks.onError(err?.message || "Connection lost");
+      if (!finished) {
+        callbacks.onError(err?.message || "Connection lost");
+      }
       throw err; // Stop retrying
     },
   });
