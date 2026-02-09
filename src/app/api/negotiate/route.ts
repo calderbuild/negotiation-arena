@@ -1,3 +1,4 @@
+import { getSession as getAuthSession } from "@/lib/auth";
 import { createSession } from "@/lib/negotiation";
 import { CreateNegotiationRequest } from "@/lib/types";
 import { NextResponse } from "next/server";
@@ -20,6 +21,12 @@ export async function POST(req: Request) {
       { error: "Invalid instance ID format" },
       { status: 400 },
     );
+  }
+
+  // Inject OAuth access token from cookie if user is logged in
+  const authSession = await getAuthSession();
+  if (authSession?.accessToken) {
+    body.accessToken = authSession.accessToken;
   }
 
   const session = createSession(body);

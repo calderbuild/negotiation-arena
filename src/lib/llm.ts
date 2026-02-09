@@ -1,18 +1,30 @@
 const CALL_TIMEOUT_MS = 30_000;
-const MAX_TOKENS = 800;
+const MAX_TOKENS = 1200;
 
-interface ChatMessage {
+export interface ChatMessage {
   role: "system" | "user" | "assistant";
   content: string;
 }
 
 /**
- * Call the OpenAI-compatible LLM API and return the complete response.
- * Uses streaming to buffer the full response text.
+ * Call the OpenAI-compatible LLM API with a system+user pair.
  */
 export async function chatCompletion(
   systemPrompt: string,
   userMessage: string,
+): Promise<string> {
+  return chatCompletionMultiTurn([
+    { role: "system", content: systemPrompt },
+    { role: "user", content: userMessage },
+  ]);
+}
+
+/**
+ * Call the OpenAI-compatible LLM API with a full message array.
+ * Used for multi-turn negotiation where agents need conversation history.
+ */
+export async function chatCompletionMultiTurn(
+  messages: ChatMessage[],
 ): Promise<string> {
   const apiKey = process.env.LLM_API_KEY;
   const baseUrl = process.env.LLM_BASE_URL || "https://newapi.deepwisdom.ai/v1";
@@ -21,11 +33,6 @@ export async function chatCompletion(
   if (!apiKey) {
     throw new Error("LLM_API_KEY is not configured");
   }
-
-  const messages: ChatMessage[] = [
-    { role: "system", content: systemPrompt },
-    { role: "user", content: userMessage },
-  ];
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), CALL_TIMEOUT_MS);

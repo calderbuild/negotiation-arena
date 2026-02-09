@@ -15,6 +15,8 @@ export interface NegotiationMessage {
 
 export interface NegotiationSummary {
   consensus_reached: boolean;
+  convergence_score: number;
+  final_proposal: string;
   agreement_terms: string[];
   party_a_concessions: string[];
   party_b_concessions: string[];
@@ -36,6 +38,7 @@ export interface NegotiationSession {
   summary: NegotiationSummary | null;
   error: string | null;
   created_at: number;
+  accessToken?: string;
 }
 
 // SSE event types sent from server to client
@@ -55,4 +58,5 @@ export interface CreateNegotiationRequest {
   instance_b_id: string;
   instance_b_name: string;
   position_b: string;
+  accessToken?: string;
 }

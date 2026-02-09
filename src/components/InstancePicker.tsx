@@ -38,7 +38,6 @@ export default function InstancePicker({
 
   const isBlue = color === "blue";
   const borderColor = isBlue ? "border-blue-500/15" : "border-emerald-500/15";
-  const hoverBorder = isBlue ? "hover:border-blue-500/30" : "hover:border-emerald-500/30";
   const bgColor = isBlue ? "bg-blue-950/10" : "bg-emerald-950/10";
 
   const inputClass = `w-full bg-zinc-900/60 border border-zinc-800 hover:border-zinc-700 rounded-lg px-3 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 transition-colors`;

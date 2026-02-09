@@ -18,6 +18,7 @@ export async function createNegotiation(
 }
 
 export interface NegotiationCallbacks {
+  onSessionInfo?: (data: { topic: string }) => void;
   onStatus: (data: { phase: string; speaker: "A" | "B"; round: number }) => void;
   onMessage: (msg: NegotiationMessage) => void;
   onSummary: (summary: NegotiationSummary) => void;
@@ -34,6 +35,9 @@ export async function streamNegotiation(
     onmessage(ev) {
       const data = JSON.parse(ev.data);
       switch (ev.event) {
+        case "session_info":
+          callbacks.onSessionInfo?.(data);
+          break;
         case "status":
           callbacks.onStatus(data);
           break;
