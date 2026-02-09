@@ -187,20 +187,9 @@ export async function runNegotiation(
       onEvent("message", msgB);
     }
 
-    // Generate summary
-    onEvent("status", { phase: "thinking", speaker: "A", round: 0 });
-
-    const summary = await generateSummary(
-      session.topic,
-      session.position_a,
-      session.position_b,
-      session.messages,
-      session.accessToken,
-    );
-    session.summary = summary;
+    // Messages complete -- send done immediately to avoid Vercel 60s timeout.
+    // Summary is generated via a separate POST /api/negotiate/summary request.
     session.status = "completed";
-
-    onEvent("summary", summary);
     onEvent("done", { session_id: sessionId });
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : "Unknown error";
@@ -294,7 +283,7 @@ ${roundGuidance}
 6. 保持简洁，每轮回应控制在 200 字以内`;
 }
 
-async function generateSummary(
+export async function generateSummary(
   topic: string,
   positionA: string,
   positionB: string,

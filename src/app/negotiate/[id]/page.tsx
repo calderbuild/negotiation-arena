@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import ChatBubble from "@/components/ChatBubble";
 import ResultCard from "@/components/ResultCard";
-import { streamNegotiation } from "@/lib/api";
+import { fetchNegotiationSummary, streamNegotiation } from "@/lib/api";
 import { NegotiationMessage, NegotiationSummary } from "@/lib/types";
 
 export default function NegotiationRoomPage() {
@@ -19,8 +19,10 @@ export default function NegotiationRoomPage() {
   const [currentRound, setCurrentRound] = useState(0);
   const [topic, setTopic] = useState("");
   const [done, setDone] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
   const [error, setError] = useState("");
   const startedRef = useRef(false);
+  const messagesRef = useRef<NegotiationMessage[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [lastAnimatedIdx, setLastAnimatedIdx] = useState(-1);
 
@@ -45,6 +47,7 @@ export default function NegotiationRoomPage() {
       },
       onMessage(msg) {
         setThinking(null);
+        messagesRef.current = [...messagesRef.current, msg];
         setMessages((prev) => {
           setLastAnimatedIdx(prev.length);
           return [...prev, msg];
@@ -57,6 +60,12 @@ export default function NegotiationRoomPage() {
       onDone() {
         setThinking(null);
         setDone(true);
+        // Fetch summary via separate request (avoids Vercel 60s timeout)
+        setSummaryLoading(true);
+        fetchNegotiationSummary(id, messagesRef.current)
+          .then((s) => setSummary(s))
+          .catch((err) => console.warn("Summary fetch failed:", err))
+          .finally(() => setSummaryLoading(false));
       },
       onError(err) {
         setThinking(null);
@@ -65,9 +74,9 @@ export default function NegotiationRoomPage() {
     });
   }, [id]);
 
-  const progressPercent = done
+  const progressPercent = done && !summaryLoading
     ? 100
-    : thinking?.round === 0
+    : done && summaryLoading
       ? 95
       : messages.length > 0
         ? (messages.length / 6) * 90
@@ -235,6 +244,20 @@ export default function NegotiationRoomPage() {
             </div>
           )}
 
+          {/* Summary loading indicator */}
+          {summaryLoading && !summary && (
+            <div className="flex justify-center py-6 animate-fade-in">
+              <div className="flex items-center gap-3 px-5 py-3 rounded-2xl border border-amber-500/15 bg-amber-500/[0.04]">
+                <span className="flex gap-1">
+                  <span className="thinking-dot w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <span className="thinking-dot w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <span className="thinking-dot w-1.5 h-1.5 rounded-full bg-amber-400" />
+                </span>
+                <span className="text-sm text-amber-300/60">正在生成共识报告</span>
+              </div>
+            </div>
+          )}
+
           {summary && (
             <>
               <div className="flex items-center gap-4 py-4">
@@ -254,7 +277,7 @@ export default function NegotiationRoomPage() {
             </div>
           )}
 
-          {done && (
+          {done && !summaryLoading && (
             <div className="flex justify-center gap-4 mt-10 pb-10 animate-fade-in">
               <Link
                 href="/negotiate/new"

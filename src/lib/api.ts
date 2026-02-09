@@ -98,6 +98,33 @@ export interface SecondMeInstanceInfo {
   status: string;
 }
 
+export async function fetchNegotiationSummary(
+  sessionId: string,
+  messages: NegotiationMessage[],
+): Promise<NegotiationSummary> {
+  let topic = "", position_a = "", position_b = "";
+  try {
+    const config = JSON.parse(sessionStorage.getItem(`negotiation_${sessionId}`) || "{}");
+    topic = config.topic || "";
+    position_a = config.position_a || "";
+    position_b = config.position_b || "";
+  } catch {
+    // sessionStorage unavailable
+  }
+
+  const res = await fetch("/api/negotiate/summary", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ topic, position_a, position_b, messages }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Summary request failed: ${res.status}`);
+  }
+
+  return res.json();
+}
+
 export async function fetchInstances(): Promise<SecondMeInstanceInfo[]> {
   const res = await fetch("/api/instances");
   const data = await res.json();
