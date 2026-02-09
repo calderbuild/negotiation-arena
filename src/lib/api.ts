@@ -51,6 +51,7 @@ export async function streamNegotiation(
     method: "POST",
     headers: body ? { "Content-Type": "application/json" } : {},
     body,
+    openWhenHidden: true,
     onmessage(ev) {
       const data = JSON.parse(ev.data);
       switch (ev.event) {
@@ -73,6 +74,10 @@ export async function streamNegotiation(
           callbacks.onError(data.error);
           break;
       }
+    },
+    onclose() {
+      // Server closed the connection -- do NOT retry
+      throw new Error("stream ended");
     },
     onerror(err) {
       callbacks.onError(err?.message || "Connection lost");

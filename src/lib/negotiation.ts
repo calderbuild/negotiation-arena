@@ -94,8 +94,17 @@ export async function runNegotiation(
     return;
   }
 
+  if (session.status === "completed") {
+    // Replay completed session
+    onEvent("session_info", { topic: session.topic });
+    for (const msg of session.messages) onEvent("message", msg);
+    if (session.summary) onEvent("summary", session.summary);
+    onEvent("done", { session_id: sessionId });
+    return;
+  }
+
   if (session.status !== "pending") {
-    onEvent("error", { error: "Session already started" });
+    onEvent("error", { error: "谈判正在进行中或已中断，请返回重新创建" });
     return;
   }
 
