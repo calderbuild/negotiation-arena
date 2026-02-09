@@ -1,6 +1,7 @@
 "use client";
 
 import { NegotiationSummary } from "@/lib/types";
+import MarkdownContent from "./MarkdownContent";
 
 export default function ResultCard({ summary }: { summary: NegotiationSummary }) {
   const reached = summary.consensus_reached;
@@ -75,7 +76,9 @@ export default function ResultCard({ summary }: { summary: NegotiationSummary })
         </div>
 
         {/* Summary text */}
-        <p className="text-zinc-300 leading-relaxed mb-6">{summary.summary_text}</p>
+        <div className="text-zinc-300 leading-relaxed mb-6 text-sm">
+          <MarkdownContent content={summary.summary_text} />
+        </div>
 
         {/* Final proposal */}
         {summary.final_proposal && (
@@ -83,7 +86,9 @@ export default function ResultCard({ summary }: { summary: NegotiationSummary })
             <h4 className="text-[10px] uppercase tracking-[0.2em] text-amber-500/60 font-mono mb-2">
               最终方案
             </h4>
-            <p className="text-sm text-zinc-300 leading-relaxed">{summary.final_proposal}</p>
+            <div className="text-sm text-zinc-300 leading-relaxed">
+              <MarkdownContent content={summary.final_proposal} />
+            </div>
           </div>
         )}
 

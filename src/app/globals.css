@@ -93,6 +93,13 @@ body {
 .animate-slide-left { animation: slide-in-left 0.4s ease-out; }
 .animate-slide-right { animation: slide-in-right 0.4s ease-out; }
 
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in { animation: fade-in 0.5s ease-out; }
+
 /* ===== VS pulse ===== */
 @keyframes vs-pulse {
   0%, 100% { transform: scale(1); text-shadow: 0 0 20px rgba(212, 160, 32, 0.3); }

@@ -43,7 +43,7 @@ export function getLoginUrl(redirectUri: string, state: string): string {
 export async function exchangeCode(
   code: string,
   redirectUri: string,
-): Promise<{ access_token: string; refresh_token: string; expires_in: number }> {
+): Promise<{ accessToken: string; refreshToken: string; expiresIn: number }> {
   const clientId = process.env.SECONDME_CLIENT_ID;
   const clientSecret = process.env.SECONDME_CLIENT_SECRET;
   if (!clientId || !clientSecret) {
@@ -69,6 +69,12 @@ export async function exchangeCode(
   }
 
   const json = await res.json();
+
+  // SecondMe returns HTTP 200 even for errors, with error in the `code` field
+  if (json.code && json.code !== 0) {
+    throw new Error(`Token exchange error (${json.code}): ${json.message ?? JSON.stringify(json)}`);
+  }
+
   return json.data ?? json;
 }
 
@@ -87,6 +93,11 @@ export async function fetchUserInfo(accessToken: string): Promise<SecondMeUser> 
   }
 
   const json = await res.json();
+
+  if (json.code && json.code !== 0) {
+    throw new Error(`User info error (${json.code}): ${json.message ?? JSON.stringify(json)}`);
+  }
+
   const data = json.data ?? json;
   return {
     userId: data.user_id ?? data.id ?? "",

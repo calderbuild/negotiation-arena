@@ -189,9 +189,9 @@ export default function NewNegotiationPage() {
           </div>
 
           {/* Agent A and B */}
-          <div className="fade-up fade-up-3 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="fade-up fade-up-3 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
             {/* Agent A - logged-in user's SecondMe */}
-            <div className="space-y-5">
+            <div className="flex flex-col gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center overflow-hidden">
                   {user?.avatar ? (
@@ -200,19 +200,18 @@ export default function NewNegotiationPage() {
                     <span className="text-sm font-bold text-blue-400">A</span>
                   )}
                 </div>
-                <span className="text-sm font-medium text-blue-300">
-                  {user?.name ?? "甲方"} <span className="text-blue-500/50 text-xs font-mono">(SecondMe)</span>
-                </span>
-              </div>
-
-              <div className="rounded-xl border border-blue-500/15 bg-blue-950/10 p-4">
-                <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-blue-500/50 font-mono">
-                  <span className="w-2 h-2 rounded-full bg-blue-400/60" />
-                  SecondMe 已连接
+                <div>
+                  <span className="text-sm font-medium text-blue-300">
+                    {user?.name ?? "甲方"}
+                  </span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400/60" />
+                    <span className="text-[10px] text-blue-500/50 font-mono">SecondMe 已连接</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="flex flex-col flex-1 gap-2">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-blue-500/60 font-mono">
                   甲方立场（保密）
                 </label>
@@ -221,36 +220,41 @@ export default function NewNegotiationPage() {
                   onChange={(e) => setPositionA(e.target.value)}
                   placeholder="描述立场、底线和可让步范围..."
                   maxLength={500}
-                  rows={4}
-                  className="w-full bg-blue-950/20 border border-blue-500/15 hover:border-blue-500/30 rounded-xl px-4 py-3 text-zinc-200 placeholder-zinc-600 resize-none transition-colors text-sm leading-relaxed"
+                  className="w-full flex-1 min-h-[120px] bg-blue-950/20 border border-blue-500/15 hover:border-blue-500/30 rounded-xl px-4 py-3 text-zinc-200 placeholder-zinc-600 resize-none transition-colors text-sm leading-relaxed"
                 />
                 <div className="text-right text-[10px] text-zinc-700 font-mono">{positionA.length}/500</div>
               </div>
             </div>
 
             {/* Agent B - LLM */}
-            <div className="space-y-5">
+            <div className="flex flex-col gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
                   <span className="text-sm font-bold text-emerald-400">B</span>
                 </div>
-                <span className="text-sm font-medium text-emerald-300">
-                  乙方 AI 对手 <span className="text-emerald-500/50 text-xs font-mono">(LLM)</span>
-                </span>
+                <div>
+                  <span className="text-sm font-medium text-emerald-300">乙方 AI 对手</span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/40" />
+                    <span className="text-[10px] text-emerald-500/40 font-mono">LLM 驱动</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="rounded-xl border border-emerald-500/15 bg-emerald-950/10 p-4 space-y-3">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-mono">对手名称</span>
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-mono">
+                  对手名称
+                </label>
                 <input
                   type="text"
                   value={instanceBName}
                   onChange={(e) => setInstanceBName(e.target.value)}
                   placeholder="AI 对手"
-                  className="w-full bg-zinc-900/60 border border-zinc-800 hover:border-zinc-700 rounded-lg px-3 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 transition-colors"
+                  className="w-full bg-emerald-950/10 border border-emerald-500/15 hover:border-emerald-500/30 rounded-xl px-4 py-3 text-sm text-zinc-200 placeholder-zinc-600 transition-colors"
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="flex flex-col flex-1 gap-2">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-emerald-500/60 font-mono">
                   乙方立场（保密）
                 </label>
@@ -259,8 +263,7 @@ export default function NewNegotiationPage() {
                   onChange={(e) => setPositionB(e.target.value)}
                   placeholder="描述立场、底线和可让步范围..."
                   maxLength={500}
-                  rows={4}
-                  className="w-full bg-emerald-950/20 border border-emerald-500/15 hover:border-emerald-500/30 rounded-xl px-4 py-3 text-zinc-200 placeholder-zinc-600 resize-none transition-colors text-sm leading-relaxed"
+                  className="w-full flex-1 min-h-[120px] bg-emerald-950/20 border border-emerald-500/15 hover:border-emerald-500/30 rounded-xl px-4 py-3 text-zinc-200 placeholder-zinc-600 resize-none transition-colors text-sm leading-relaxed"
                 />
                 <div className="text-right text-[10px] text-zinc-700 font-mono">{positionB.length}/500</div>
               </div>

@@ -25,19 +25,22 @@ export async function GET(req: NextRequest) {
 
   try {
     const redirectUri = `${origin}/api/auth/callback`;
+    console.log("[OAuth] Exchanging code, redirectUri:", redirectUri);
     const tokens = await exchangeCode(code, redirectUri);
-    const user = await fetchUserInfo(tokens.access_token);
+    console.log("[OAuth] Tokens received, fetching user info...");
+    const user = await fetchUserInfo(tokens.accessToken);
+    console.log("[OAuth] User info:", user.name, user.userId);
 
     await setSession({
-      accessToken: tokens.access_token,
-      refreshToken: tokens.refresh_token,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
       user,
-      expiresAt: Date.now() + tokens.expires_in * 1000,
+      expiresAt: Date.now() + tokens.expiresIn * 1000,
     });
 
     return NextResponse.redirect(`${origin}/negotiate/new`);
   } catch (err) {
-    console.error("OAuth callback error:", err);
+    console.error("[OAuth] Callback error:", err);
     return NextResponse.redirect(`${origin}/?error=auth_failed`);
   }
 }
