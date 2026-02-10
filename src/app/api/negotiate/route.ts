@@ -42,6 +42,8 @@ export async function POST(req: Request) {
       instance_b_name: session.instance_b_name,
       position_b: session.position_b,
       accessToken: session.accessToken,
+      red_line_a: session.red_line_a,
+      red_line_b: session.red_line_b,
       created_at: session.created_at,
     },
   });

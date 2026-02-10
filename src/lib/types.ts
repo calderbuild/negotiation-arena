@@ -13,6 +13,26 @@ export interface NegotiationMessage {
   timestamp: number;
 }
 
+export interface NegotiationStyleAnalysis {
+  label: string;
+  description: string;
+  cooperativeness: number;
+  flexibility: number;
+}
+
+export interface TurningPoint {
+  round: number;
+  speaker: "A" | "B";
+  description: string;
+  impact: "positive" | "negative";
+}
+
+export interface RedLineAnalysis {
+  party_a_maintained: boolean;
+  party_b_maintained: boolean;
+  details: string;
+}
+
 export interface NegotiationSummary {
   consensus_reached: boolean;
   convergence_score: number;
@@ -22,6 +42,12 @@ export interface NegotiationSummary {
   party_b_concessions: string[];
   unresolved_disputes: string[];
   summary_text: string;
+  party_a_style?: NegotiationStyleAnalysis;
+  party_b_style?: NegotiationStyleAnalysis;
+  turning_points?: TurningPoint[];
+  satisfaction_a?: number;
+  satisfaction_b?: number;
+  red_line_analysis?: RedLineAnalysis;
 }
 
 export interface NegotiationSession {
@@ -39,6 +65,8 @@ export interface NegotiationSession {
   error: string | null;
   created_at: number;
   accessToken?: string;
+  red_line_a?: string;
+  red_line_b?: string;
 }
 
 // SSE event types sent from server to client
@@ -59,4 +87,6 @@ export interface CreateNegotiationRequest {
   instance_b_name: string;
   position_b: string;
   accessToken?: string;
+  red_line_a?: string;
+  red_line_b?: string;
 }

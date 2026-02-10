@@ -16,6 +16,8 @@ const PRESETS = [
     topic: "年终奖金如何在研发和市场部门之间分配",
     position_a: "研发部门贡献了核心产品，应拿 60% 奖金。底线不低于 50%，可以在其他福利上灵活协商。",
     position_b: "市场部门带来了所有客户，应拿 50% 奖金。底线不低于 40%，可以在其他福利上灵活协商。",
+    red_line_a: "研发部门占比不低于 50%",
+    red_line_b: "市场部门占比不低于 35%",
     instance_b_name: "市场部经理",
   },
   {
@@ -23,6 +25,8 @@ const PRESETS = [
     topic: "周末团队聚餐去哪里吃",
     position_a: "偏好日料，预算人均 150 左右。也可以接受其他菜系，只要环境好、食材新鲜。",
     position_b: "偏好火锅，人均 200 也可以。可以接受其他菜系，但希望不要太远（3公里以内）。",
+    red_line_a: "人均不超过 200 元",
+    red_line_b: "距离公司不超过 30 分钟",
     instance_b_name: "组织委员",
   },
   {
@@ -30,6 +34,8 @@ const PRESETS = [
     topic: "新功能的开发排期如何安排",
     position_a: "希望后端先做一周，前端第二周开始。但可以灵活协商，底线是后端至少先做 2 天准备接口。",
     position_b: "希望前端和后端尽量并行开发。可以接受后端先启动 1-2 天，但前端不能等太久。",
+    red_line_a: "后端 API 必须在前端开发前完成",
+    red_line_b: "总工期不超过 8 周",
     instance_b_name: "前端负责人",
   },
   {
@@ -37,6 +43,8 @@ const PRESETS = [
     topic: "办公室空调温度设置",
     position_a: "觉得 22 度最合适，太热容易犯困。底线是不超过 24 度，可以接受分区调温方案。",
     position_b: "觉得 26 度合适，太冷容易感冒。底线不低于 24 度，可以接受多穿衣但不想一直吹冷风。",
+    red_line_a: "温度不高于 24 度",
+    red_line_b: "温度不低于 24 度",
     instance_b_name: "行政主管",
   },
   {
@@ -44,6 +52,8 @@ const PRESETS = [
     topic: "是否应该推行每周两天远程办公政策",
     position_a: "强烈支持远程办公，效率更高、通勤时间省下来可以多做事。希望每周至少 3 天远程。底线是 2 天。",
     position_b: "反对大面积远程办公，线下沟通效率和团队凝聚力无法替代。最多接受每周 1 天远程。底线是完全不能远程或最多 1 天。",
+    red_line_a: "每周至少 2 天远程",
+    red_line_b: "每周至少 3 天到岗",
     instance_b_name: "部门总监",
   },
 ];
@@ -56,6 +66,9 @@ export default function NewNegotiationPage() {
   const [positionA, setPositionA] = useState("");
   const [instanceBName, setInstanceBName] = useState("AI 对手");
   const [positionB, setPositionB] = useState("");
+  const [redLineA, setRedLineA] = useState("");
+  const [redLineB, setRedLineB] = useState("");
+  const [showRedLines, setShowRedLines] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [activePreset, setActivePreset] = useState<number | null>(null);
@@ -81,8 +94,11 @@ export default function NewNegotiationPage() {
     setTopic(preset.topic);
     setPositionA(preset.position_a);
     setPositionB(preset.position_b);
+    setRedLineA(preset.red_line_a);
+    setRedLineB(preset.red_line_b);
     setInstanceBName(preset.instance_b_name);
     setActivePreset(idx);
+    setShowRedLines(true);
   };
 
   const canSubmit =
@@ -106,6 +122,8 @@ export default function NewNegotiationPage() {
         instance_b_id: "llm-agent",
         instance_b_name: instanceBName.trim() || "AI 对手",
         position_b: positionB.trim(),
+        red_line_a: redLineA.trim() || undefined,
+        red_line_b: redLineB.trim() || undefined,
       });
       router.push(`/negotiate/${sessionId}`);
     } catch (err) {
@@ -224,6 +242,22 @@ export default function NewNegotiationPage() {
                 />
                 <div className="text-right text-[10px] text-zinc-700 font-mono">{positionA.length}/500</div>
               </div>
+
+              {showRedLines && (
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] uppercase tracking-[0.2em] text-blue-500/40 font-mono">
+                    甲方底线（可选）
+                  </label>
+                  <input
+                    type="text"
+                    value={redLineA}
+                    onChange={(e) => setRedLineA(e.target.value)}
+                    placeholder="绝不妥协的条件，如：占比不低于 50%"
+                    maxLength={200}
+                    className="w-full bg-blue-950/10 border border-blue-500/10 hover:border-blue-500/25 rounded-xl px-4 py-2.5 text-sm text-zinc-300 placeholder-zinc-600 transition-colors"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Agent B - LLM */}
@@ -267,8 +301,36 @@ export default function NewNegotiationPage() {
                 />
                 <div className="text-right text-[10px] text-zinc-700 font-mono">{positionB.length}/500</div>
               </div>
+
+              {showRedLines && (
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] uppercase tracking-[0.2em] text-emerald-500/40 font-mono">
+                    乙方底线（可选）
+                  </label>
+                  <input
+                    type="text"
+                    value={redLineB}
+                    onChange={(e) => setRedLineB(e.target.value)}
+                    placeholder="绝不妥协的条件，如：总工期不超过 8 周"
+                    maxLength={200}
+                    className="w-full bg-emerald-950/10 border border-emerald-500/10 hover:border-emerald-500/25 rounded-xl px-4 py-2.5 text-sm text-zinc-300 placeholder-zinc-600 transition-colors"
+                  />
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Red line toggle */}
+          {!showRedLines && (
+            <div className="fade-up">
+              <button
+                onClick={() => setShowRedLines(true)}
+                className="text-[10px] uppercase tracking-[0.2em] text-zinc-600 font-mono hover:text-zinc-400 transition-colors"
+              >
+                + 设置底线条件（高级）
+              </button>
+            </div>
+          )}
 
           {/* Error */}
           {error && (

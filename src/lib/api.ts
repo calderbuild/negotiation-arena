@@ -49,46 +49,54 @@ export async function streamNegotiation(
 
   let finished = false;
 
-  await fetchEventSource(`/api/negotiate/${sessionId}/stream`, {
-    method: "POST",
-    headers: body ? { "Content-Type": "application/json" } : {},
-    body,
-    openWhenHidden: true,
-    onmessage(ev) {
-      const data = JSON.parse(ev.data);
-      switch (ev.event) {
-        case "session_info":
-          callbacks.onSessionInfo?.(data);
-          break;
-        case "status":
-          callbacks.onStatus(data);
-          break;
-        case "message":
-          callbacks.onMessage(data);
-          break;
-        case "summary":
-          callbacks.onSummary(data);
-          break;
-        case "done":
-          finished = true;
-          callbacks.onDone();
-          break;
-        case "error":
-          callbacks.onError(data.error);
-          break;
-      }
-    },
-    onclose() {
-      // Server closed the connection -- do NOT retry
-      throw new Error("stream closed");
-    },
-    onerror(err) {
-      if (!finished) {
-        callbacks.onError(err?.message || "Connection lost");
-      }
-      throw err; // Stop retrying
-    },
-  });
+  try {
+    await fetchEventSource(`/api/negotiate/${sessionId}/stream`, {
+      method: "POST",
+      headers: body ? { "Content-Type": "application/json" } : {},
+      body,
+      openWhenHidden: true,
+      onmessage(ev) {
+        const data = JSON.parse(ev.data);
+        switch (ev.event) {
+          case "session_info":
+            callbacks.onSessionInfo?.(data);
+            break;
+          case "status":
+            callbacks.onStatus(data);
+            break;
+          case "message":
+            callbacks.onMessage(data);
+            break;
+          case "summary":
+            callbacks.onSummary(data);
+            break;
+          case "done":
+            finished = true;
+            callbacks.onDone();
+            break;
+          case "error":
+            callbacks.onError(data.error);
+            break;
+        }
+      },
+      onclose() {
+        // Server closed the connection -- throw to prevent retry
+        throw new Error("stream closed");
+      },
+      onerror(err) {
+        if (!finished) {
+          callbacks.onError(err?.message || "Connection lost");
+        }
+        throw err; // Stop retrying
+      },
+    });
+  } catch {
+    // Expected: onclose/onerror throw to stop fetch-event-source from retrying.
+    // Only surface unexpected errors that happened before the stream finished.
+    if (!finished) {
+      callbacks.onError("Connection lost");
+    }
+  }
 }
 
 export interface SecondMeInstanceInfo {
@@ -103,11 +111,14 @@ export async function fetchNegotiationSummary(
   messages: NegotiationMessage[],
 ): Promise<NegotiationSummary> {
   let topic = "", position_a = "", position_b = "";
+  let red_line_a = "", red_line_b = "";
   try {
     const config = JSON.parse(sessionStorage.getItem(`negotiation_${sessionId}`) || "{}");
     topic = config.topic || "";
     position_a = config.position_a || "";
     position_b = config.position_b || "";
+    red_line_a = config.red_line_a || "";
+    red_line_b = config.red_line_b || "";
   } catch {
     // sessionStorage unavailable
   }
@@ -115,7 +126,7 @@ export async function fetchNegotiationSummary(
   const res = await fetch("/api/negotiate/summary", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ topic, position_a, position_b, messages }),
+    body: JSON.stringify({ topic, position_a, position_b, messages, red_line_a, red_line_b }),
   });
 
   if (!res.ok) {

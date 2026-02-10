@@ -10,6 +10,8 @@ export async function POST(req: Request) {
     position_a: string;
     position_b: string;
     messages: NegotiationMessage[];
+    red_line_a?: string;
+    red_line_b?: string;
   } = await req.json();
 
   if (!body.topic || !body.messages?.length) {
@@ -23,6 +25,8 @@ export async function POST(req: Request) {
     body.position_b,
     body.messages,
     authSession?.accessToken,
+    body.red_line_a,
+    body.red_line_b,
   );
 
   return Response.json(summary);
